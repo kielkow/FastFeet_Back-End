@@ -1,8 +1,24 @@
+import * as Yup from 'yup';
+
 import Recipient from '../models/Recipient';
 import User from '../models/User';
 
 class RecipientController {
   async store(req, res) {
+    const schema = Yup.object().shape({
+      name: Yup.string().required(),
+      street: Yup.string().required(),
+      number: Yup.string().required(),
+      details: Yup.string().required(),
+      state: Yup.string().required(),
+      city: Yup.string().required(),
+      cep: Yup.string().required(),
+    });
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(400).json({ error: 'Validation fails' });
+    }
+
     const checkUserProvider = await User.findOne({
       where: { id: req.params.id },
     });
