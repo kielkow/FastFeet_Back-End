@@ -5,6 +5,7 @@ class Recipient extends Model {
     super.init(
       {
         name: Sequelize.STRING,
+        signature_id: Sequelize.INTEGER,
         street: Sequelize.STRING,
         number: Sequelize.STRING,
         details: Sequelize.STRING,
@@ -18,6 +19,13 @@ class Recipient extends Model {
     );
 
     return this;
+  }
+
+  static associate(models) {
+    this.belongsTo(models.File, {
+      foreignKey: 'signature_id',
+      as: 'signature',
+    });
   }
 }
 
