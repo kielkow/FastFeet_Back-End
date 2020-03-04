@@ -1,11 +1,25 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('recipients', {
+    return queryInterface.createTable('orders', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
+      },
+      recipient_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'recipients', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        allowNull: false,
+      },
+      courier_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'couriers', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        allowNull: false,
       },
       signature_id: {
         type: Sequelize.INTEGER,
@@ -14,33 +28,21 @@ module.exports = {
         onDelete: 'SET NULL',
         allowNull: false,
       },
-      name: {
+      product: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      street: {
-        type: Sequelize.STRING,
+      start_date: {
+        type: Sequelize.DATE,
         allowNull: false,
       },
-      number: {
-        type: Sequelize.STRING,
+      end_date: {
+        type: Sequelize.DATE,
         allowNull: false,
       },
-      details: {
-        type: Sequelize.STRING,
+      canceled_at: {
+        type: Sequelize.DATE,
         allowNull: true,
-      },
-      state: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      city: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      cep: {
-        type: Sequelize.STRING,
-        allowNull: false,
       },
       created_at: {
         type: Sequelize.DATE,
@@ -54,6 +56,6 @@ module.exports = {
   },
 
   down: queryInterface => {
-    return queryInterface.dropTable('recipients');
+    return queryInterface.dropTable('orders');
   },
 };
