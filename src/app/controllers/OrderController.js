@@ -1,6 +1,7 @@
 // import * as Yup from 'yup';
 import { Op } from 'sequelize';
 
+import { format, pt } from 'date-fns';
 import Order from '../models/Order';
 import Recipient from '../models/Recipient';
 import Courier from '../models/Courier';
@@ -100,7 +101,14 @@ class CourierController {
       await Mail.sendMail({
         to: `${order.courier.name} <${order.courier.email}>`,
         subject: 'Encomenda cancelada',
-        text: 'Você tem um novo cancelamento',
+        template: 'cancellation',
+        context: {
+          courier: order.courier.name,
+          recipient: order.recipient.name,
+          date: format(order.start_date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
+            locale: pt,
+          }),
+        },
       });
 
       await order.destroy();
