@@ -8,6 +8,7 @@ import SessionController from './app/controllers/SessionController';
 import FileController from './app/controllers/FileController';
 import CourierController from './app/controllers/CourierController';
 import OrderController from './app/controllers/OrderController';
+import OrdersByCouriers from './app/controllers/OrdersByCouriers';
 
 import authMiddleware from './app/middlewares/auth';
 
@@ -34,5 +35,7 @@ routes.get('/orders', OrderController.index);
 routes.post('/orders', OrderController.store);
 routes.put('/orders/:id', OrderController.update);
 routes.delete('/orders/:id', OrderController.delete);
+
+routes.get('/ordersbycouriers/:id', OrdersByCouriers.index);
 
 export default routes;

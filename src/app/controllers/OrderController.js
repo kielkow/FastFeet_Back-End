@@ -261,9 +261,7 @@ class OrderController {
         },
       });
 
-      await order.destroy();
-
-      return res.json({ success: 'Order deleted' });
+      return res.json(order);
     } catch (error) {
       return res.json(error);
     }
