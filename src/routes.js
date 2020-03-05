@@ -31,6 +31,7 @@ routes.delete('/couriers/:id', CourierController.delete);
 routes.post('/files', upload.single('file'), FileController.store);
 
 routes.get('/orders', OrderController.index);
+routes.post('/orders', OrderController.store);
 routes.delete('/orders/:id', OrderController.delete);
 
 export default routes;
