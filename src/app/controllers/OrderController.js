@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import { Op } from 'sequelize';
 
-import { startOfHour, parseISO, format, getHours } from 'date-fns';
+import { startOfHour, parseISO, format, getHours, isBefore } from 'date-fns';
 import pt from 'date-fns/locale/pt';
 import Order from '../models/Order';
 import Recipient from '../models/Recipient';
@@ -10,7 +10,7 @@ import File from '../models/File';
 
 import Mail from '../../lib/Mail';
 
-class CourierController {
+class OrderController {
   async index(req, res) {
     const { page = 1 } = req.query;
 
@@ -130,7 +130,73 @@ class CourierController {
     return res.json(order);
   }
 
-  // async update(req, res) {}
+  async update(req, res) {
+    try {
+      const order = await Order.findByPk(req.params.id, {
+        include: [
+          {
+            model: Recipient,
+            as: 'recipient',
+            attributes: [
+              'name',
+              'signature_id',
+              'street',
+              'number',
+              'details',
+              'state',
+              'city',
+              'cep',
+            ],
+          },
+          {
+            model: Courier,
+            as: 'courier',
+            attributes: ['id', 'name', 'avatar_id', 'email'],
+          },
+        ],
+      });
+
+      if (!order) return res.json({ error: 'Order not found' });
+
+      if (!req.userId) {
+        return res.status(401).json({
+          error: "You don't have permission to update this appointment",
+        });
+      }
+
+      order.end_date = new Date();
+
+      if (isBefore(order.end_date, order.start_date))
+        return res.json({ error: 'Date not permitted' });
+
+      await order.save();
+
+      await Mail.sendMail({
+        to: `${order.courier.name} <${order.courier.email}>`,
+        subject: 'Data final de envio confirmada',
+        template: 'enddate',
+        context: {
+          courier: order.courier.name,
+          courierId: order.courier.id,
+          recipient: order.recipient.name,
+          start_date: format(
+            order.start_date,
+            "'dia' dd 'de' MMMM', às' H:mm'h'",
+            {
+              locale: pt,
+            }
+          ),
+          end_date: format(order.end_date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
+            locale: pt,
+          }),
+        },
+      });
+
+      return res.json(order);
+    } catch (error) {
+      return res.json(error);
+    }
+  }
 
   async delete(req, res) {
     try {
@@ -192,4 +258,4 @@ class CourierController {
   }
 }
 
-export default new CourierController();
+export default new OrderController();
