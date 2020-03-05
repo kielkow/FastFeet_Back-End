@@ -6,6 +6,8 @@ import Recipient from '../models/Recipient';
 import Courier from '../models/Courier';
 // import File from '../models/File';
 
+import Mail from '../../lib/Mail';
+
 class CourierController {
   async index(req, res) {
     const { page = 1 } = req.query;
@@ -58,11 +60,52 @@ class CourierController {
   // async update(req, res) {}
 
   async delete(req, res) {
-    const order = await Order.findByPk(req.params.id);
-
     try {
+      const order = await Order.findByPk(req.params.id, {
+        include: [
+          {
+            model: Recipient,
+            as: 'recipient',
+            attributes: [
+              'name',
+              'signature_id',
+              'street',
+              'number',
+              'details',
+              'state',
+              'city',
+              'cep',
+            ],
+          },
+          {
+            model: Courier,
+            as: 'courier',
+            attributes: ['name', 'avatar_id', 'email'],
+          },
+        ],
+      });
+
+      if (!order) return res.json({ error: 'Order not found' });
+
+      if (!req.userId) {
+        return res.status(401).json({
+          error: "You don't have permission to cancel this appointment",
+        });
+      }
+
+      order.canceled_at = new Date();
+
+      await order.save();
+
+      await Mail.sendMail({
+        to: `${order.courier.name} <${order.courier.email}>`,
+        subject: 'Encomenda cancelada',
+        text: 'Você tem um novo cancelamento',
+      });
+
       await order.destroy();
-      return res.json({ succes: 'Order deleted' });
+
+      return res.json({ success: 'Order deleted' });
     } catch (error) {
       return res.json(error);
     }
