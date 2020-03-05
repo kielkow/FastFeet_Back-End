@@ -124,6 +124,12 @@ class OrderController {
         date: format(order.start_date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
           locale: pt,
         }),
+        street: recipientExists.street,
+        number: recipientExists.number,
+        details: recipientExists.details,
+        state: recipientExists.state,
+        city: recipientExists.city,
+        cep: recipientExists.cep,
       },
     });
 
@@ -189,6 +195,12 @@ class OrderController {
           end_date: format(order.end_date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
             locale: pt,
           }),
+          street: order.recipient.street,
+          number: order.recipient.number,
+          details: order.recipient.details,
+          state: order.recipient.state,
+          city: order.recipient.city,
+          cep: order.recipient.cep,
         },
       });
 
