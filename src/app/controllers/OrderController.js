@@ -1,7 +1,15 @@
 import * as Yup from 'yup';
 import { Op } from 'sequelize';
 
-import { startOfHour, parseISO, format, getHours, isBefore } from 'date-fns';
+import {
+  startOfHour,
+  startOfDay,
+  endOfDay,
+  parseISO,
+  format,
+  getHours,
+  isBefore,
+} from 'date-fns';
 import pt from 'date-fns/locale/pt';
 import Order from '../models/Order';
 import Recipient from '../models/Recipient';
@@ -70,6 +78,7 @@ class OrderController {
       return res.status(400).json({ error: 'Validation fails' });
     }
 
+    // check if order already exist
     const orderExists = await Order.findOne({
       where: {
         recipient_id: req.body.recipient_id,
@@ -82,6 +91,7 @@ class OrderController {
       return res.status(400).json({ error: 'Order already exist' });
     }
 
+    // check if recipient exist
     const recipientExists = await Recipient.findOne({
       where: { id: req.body.recipient_id },
     });
@@ -90,6 +100,7 @@ class OrderController {
       return res.status(400).json({ error: 'Recipient not exist' });
     }
 
+    // check if courier exist
     const courierExists = await Courier.findOne({
       where: { id: req.body.courier_id },
     });
@@ -98,6 +109,7 @@ class OrderController {
       return res.status(400).json({ error: 'Courier not exist' });
     }
 
+    // check if file exist
     const fileExists = await File.findOne({
       where: { id: req.body.signature_id },
     });
@@ -106,11 +118,28 @@ class OrderController {
       return res.status(400).json({ error: 'File not exist' });
     }
 
+    // check if hour is between 08:00 and 18:00
     const hourStart = getHours(startOfHour(parseISO(req.body.start_date)));
 
     if (hourStart < 8 || hourStart > 18) {
       return res.status(400).json({ error: 'Past date are not permitted' });
     }
+
+    // check number of open orders today
+    const today = parseISO(req.body.start_date);
+
+    const similiarOrders = await Order.findAndCountAll({
+      where: {
+        start_date: {
+          [Op.between]: [startOfDay(today), endOfDay(today)],
+        },
+      },
+    });
+
+    if (similiarOrders.count >= 5)
+      return res
+        .status(400)
+        .json({ error: 'Not possible open more than 5 orders p/ day' });
 
     const order = await Order.create(req.body);
 
