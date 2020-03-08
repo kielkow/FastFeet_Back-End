@@ -23,6 +23,7 @@ routes.use(authMiddleware);
 
 routes.put('/users', UserController.update);
 
+routes.get('/recipients', RecipientController.index);
 routes.post('/recipients/:id', RecipientController.store);
 
 routes.get('/couriers', CourierController.index);

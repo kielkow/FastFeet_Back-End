@@ -1,10 +1,37 @@
 import * as Yup from 'yup';
 
+import { Op } from 'sequelize';
+
 import Recipient from '../models/Recipient';
 import User from '../models/User';
 import File from '../models/File';
 
 class RecipientController {
+  async index(req, res) {
+    const { page = 1 } = req.query;
+
+    if (req.query.name) {
+      const recipients = await Recipient.findAll({
+        where: {
+          name: {
+            [Op.iRegexp]: req.query.name,
+          },
+        },
+        order: ['id'],
+        limit: 8,
+        offset: (page - 1) * 8,
+      });
+      return res.json(recipients);
+    }
+
+    const recipients = await Recipient.findAll({
+      order: ['id'],
+      limit: 8,
+      offset: (page - 1) * 8,
+    });
+    return res.json(recipients);
+  }
+
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
