@@ -327,7 +327,7 @@ bcrypt@^3.0.6:
     nan "2.14.0"
     node-pre-gyp "0.14.0"
 
-bee-queue@^1.2.2:
+bee-queue@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/bee-queue/-/bee-queue-1.2.3.tgz#d4839ecdb10d9116e80417bfca38e4bfd20fcc50"
   integrity sha512-oAvZZi/hrVSCCOIR2A0DP6aWDQz8+oEVRTVO/DDYJHhQ4HmSvKYQeTYUsXwxok+nm6kVUETVnLPDHjcDDp4AVQ==

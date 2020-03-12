@@ -12,7 +12,7 @@
   "dependencies": {
     "@sentry/node": "^5.7.1",
     "bcrypt": "^3.0.6",
-    "bee-queue": "^1.2.2",
+    "bee-queue": "^1.2.3",
     "cors": "^2.8.5",
     "date-fns": "^2.6.0",
     "date-fns-tz": "^1.0.8",

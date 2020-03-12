@@ -6,17 +6,18 @@ import {
   startOfDay,
   endOfDay,
   parseISO,
-  format,
   getHours,
   isBefore,
 } from 'date-fns';
-import pt from 'date-fns/locale/pt';
 import Order from '../models/Order';
 import Recipient from '../models/Recipient';
 import Courier from '../models/Courier';
 import File from '../models/File';
 
-import Mail from '../../lib/Mail';
+import CancellationMail from '../jobs/CancellationMail';
+import CreateMail from '../jobs/CreateMail';
+import FinishMail from '../jobs/FinishMail';
+import Queue from '../../lib/Queue';
 
 class OrderController {
   async index(req, res) {
@@ -143,23 +144,10 @@ class OrderController {
 
     const order = await Order.create(req.body);
 
-    await Mail.sendMail({
-      to: `${courierExists.name} <${courierExists.email}>`,
-      subject: 'Encomenda disponível para retirada',
-      template: 'confirmation',
-      context: {
-        courier: courierExists.name,
-        recipient: recipientExists.name,
-        date: format(order.start_date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
-          locale: pt,
-        }),
-        street: recipientExists.street,
-        number: recipientExists.number,
-        details: recipientExists.details,
-        state: recipientExists.state,
-        city: recipientExists.city,
-        cep: recipientExists.cep,
-      },
+    await Queue.add(CreateMail.key, {
+      order,
+      courierExists,
+      recipientExists,
     });
 
     return res.json(order);
@@ -206,31 +194,8 @@ class OrderController {
 
       await order.save();
 
-      await Mail.sendMail({
-        to: `${order.courier.name} <${order.courier.email}>`,
-        subject: 'Data final de envio confirmada',
-        template: 'enddate',
-        context: {
-          courier: order.courier.name,
-          courierId: order.courier.id,
-          recipient: order.recipient.name,
-          start_date: format(
-            order.start_date,
-            "'dia' dd 'de' MMMM', às' H:mm'h'",
-            {
-              locale: pt,
-            }
-          ),
-          end_date: format(order.end_date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
-            locale: pt,
-          }),
-          street: order.recipient.street,
-          number: order.recipient.number,
-          details: order.recipient.details,
-          state: order.recipient.state,
-          city: order.recipient.city,
-          cep: order.recipient.cep,
-        },
+      await Queue.add(FinishMail.key, {
+        order,
       });
 
       return res.json(order);
@@ -277,17 +242,8 @@ class OrderController {
 
       await order.save();
 
-      await Mail.sendMail({
-        to: `${order.courier.name} <${order.courier.email}>`,
-        subject: 'Encomenda cancelada',
-        template: 'cancellation',
-        context: {
-          courier: order.courier.name,
-          recipient: order.recipient.name,
-          date: format(order.start_date, "'dia' dd 'de' MMMM', às' H:mm'h'", {
-            locale: pt,
-          }),
-        },
+      await Queue.add(CancellationMail.key, {
+        order,
       });
 
       return res.json(order);
