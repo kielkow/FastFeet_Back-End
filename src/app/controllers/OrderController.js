@@ -209,6 +209,7 @@ class OrderController {
       }
 
       order.end_date = new Date();
+      order.status = 'delivered';
 
       if (isBefore(order.end_date, order.start_date))
         return res.json({ error: 'Date not permitted' });
@@ -260,6 +261,7 @@ class OrderController {
       }
 
       order.canceled_at = new Date();
+      order.status = 'canceled';
 
       await order.save();
 
