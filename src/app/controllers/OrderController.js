@@ -52,7 +52,7 @@ class OrderController {
             attributes: ['name', 'avatar_id', 'email'],
           },
         ],
-        limit: 8,
+        limit: 6,
         offset: (page - 1) * 8,
       });
       return res.json(orders);
@@ -60,7 +60,28 @@ class OrderController {
 
     const orders = await Order.findAll({
       order: ['id'],
-      limit: 8,
+      include: [
+        {
+          model: Recipient,
+          as: 'recipient',
+          attributes: [
+            'name',
+            'signature_id',
+            'street',
+            'number',
+            'details',
+            'state',
+            'city',
+            'cep',
+          ],
+        },
+        {
+          model: Courier,
+          as: 'courier',
+          attributes: ['name', 'avatar_id', 'email'],
+        },
+      ],
+      limit: 6,
       offset: (page - 1) * 8,
     });
     return res.json(orders);
