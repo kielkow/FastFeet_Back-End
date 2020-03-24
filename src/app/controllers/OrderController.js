@@ -49,7 +49,14 @@ class OrderController {
           {
             model: Courier,
             as: 'courier',
-            attributes: ['name', 'avatar_id', 'email'],
+            attributes: ['name', 'email'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['id', 'path', 'url'],
+              },
+            ],
           },
         ],
         limit: 6,
@@ -78,7 +85,14 @@ class OrderController {
         {
           model: Courier,
           as: 'courier',
-          attributes: ['name', 'avatar_id', 'email'],
+          attributes: ['name', 'email'],
+          include: [
+            {
+              model: File,
+              as: 'avatar',
+              attributes: ['id', 'path', 'url'],
+            },
+          ],
         },
       ],
       limit: 6,
