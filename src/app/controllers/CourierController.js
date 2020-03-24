@@ -15,6 +15,13 @@ class CourierController {
             [Op.iRegexp]: req.query.name,
           },
         },
+        include: [
+          {
+            model: File,
+            as: 'avatar',
+            attributes: ['id', 'path', 'url'],
+          },
+        ],
         order: ['id'],
         limit: 8,
         offset: (page - 1) * 8,
@@ -23,6 +30,13 @@ class CourierController {
     }
 
     const couriers = await Courier.findAll({
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
       order: ['id'],
       limit: 8,
       offset: (page - 1) * 8,
