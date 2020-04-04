@@ -31,7 +31,12 @@ class OrdersProblemsController {
         limit: 8,
         offset: (page - 1) * 8,
       });
-      return res.json(ordersWithProblems);
+
+      const ordersNotCanceled = ordersWithProblems.filter(orderWithProblem => {
+        return orderWithProblem.order.canceled_at === null;
+      });
+
+      return res.json(ordersNotCanceled);
     }
 
     const ordersWithProblems = await OrdersProblems.findAll({
@@ -54,7 +59,12 @@ class OrdersProblemsController {
       limit: 8,
       offset: (page - 1) * 8,
     });
-    return res.json(ordersWithProblems);
+
+    const ordersNotCanceled = ordersWithProblems.filter(orderWithProblem => {
+      return orderWithProblem.order.canceled_at === null;
+    });
+
+    return res.json(ordersNotCanceled);
   }
 
   async store(req, res) {
@@ -69,11 +79,11 @@ class OrdersProblemsController {
 
     // check if order exist
     const checkOrderExist = await Order.findOne({
-      where: { id: req.body.order_id },
+      where: { id: req.body.order_id, canceled_at: null },
     });
 
     if (!checkOrderExist)
-      return res.status(400).json({ error: 'Order not exist' });
+      return res.status(400).json({ error: 'Order not exist or is canceled' });
 
     // check if order problem already exist
     const checkOrdersProblemsExist = await OrdersProblems.findOne({
