@@ -26,17 +26,16 @@ class OrdersProblemsController {
               'end_date',
               'canceled_at',
             ],
+            where: {
+              canceled_at: null,
+            },
           },
         ],
-        limit: 8,
-        offset: (page - 1) * 8,
+        limit: 5,
+        offset: (page - 1) * 5,
       });
 
-      const ordersNotCanceled = ordersWithProblems.filter(orderWithProblem => {
-        return orderWithProblem.order.canceled_at === null;
-      });
-
-      return res.json(ordersNotCanceled);
+      return res.json(ordersWithProblems);
     }
 
     const ordersWithProblems = await OrdersProblems.findAll({
@@ -54,17 +53,16 @@ class OrdersProblemsController {
             'end_date',
             'canceled_at',
           ],
+          where: {
+            canceled_at: null,
+          },
         },
       ],
-      limit: 8,
-      offset: (page - 1) * 8,
+      limit: 5,
+      offset: (page - 1) * 5,
     });
 
-    const ordersNotCanceled = ordersWithProblems.filter(orderWithProblem => {
-      return orderWithProblem.order.canceled_at === null;
-    });
-
-    return res.json(ordersNotCanceled);
+    return res.json(ordersWithProblems);
   }
 
   async store(req, res) {
