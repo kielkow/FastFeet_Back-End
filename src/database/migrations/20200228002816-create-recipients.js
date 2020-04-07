@@ -12,7 +12,8 @@ module.exports = {
         references: { model: 'files', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
-        allowNull: false,
+        defaultValue: null,
+        allowNull: true,
       },
       name: {
         type: Sequelize.STRING,

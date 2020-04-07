@@ -35,7 +35,7 @@ class RecipientController {
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
-      signature_id: Yup.number().required(),
+      signature_id: Yup.number(),
       street: Yup.string().required(),
       number: Yup.string().required(),
       details: Yup.string().required(),
@@ -58,18 +58,19 @@ class RecipientController {
     if (!checkUserProvider.provider)
       return res.status(400).json({ error: 'User is not a provider' });
 
-    const fileExists = await File.findOne({
-      where: { id: req.body.signature_id },
-    });
+    if (req.body.signature_id) {
+      const fileExists = await File.findOne({
+        where: { id: req.body.signature_id },
+      });
 
-    if (!fileExists) {
-      return res.status(400).json({ error: 'File not exist' });
+      if (!fileExists) {
+        return res.status(400).json({ error: 'File not exist' });
+      }
     }
 
     const recipientExists = await Recipient.findOne({
       where: {
         name: req.body.name,
-        signature_id: req.body.signature_id,
         street: req.body.street,
         number: req.body.number,
         details: req.body.details,
