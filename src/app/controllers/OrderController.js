@@ -45,6 +45,13 @@ class OrderController {
               'city',
               'cep',
             ],
+            include: [
+              {
+                model: File,
+                as: 'signature',
+                attributes: ['id', 'name', 'path', 'url'],
+              },
+            ],
           },
           {
             model: Courier,
@@ -80,6 +87,13 @@ class OrderController {
             'state',
             'city',
             'cep',
+          ],
+          include: [
+            {
+              model: File,
+              as: 'signature',
+              attributes: ['id', 'name', 'path', 'url'],
+            },
           ],
         },
         {
