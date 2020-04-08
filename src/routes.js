@@ -25,6 +25,8 @@ routes.put('/users', UserController.update);
 
 routes.get('/recipients', RecipientController.index);
 routes.post('/recipients/:id', RecipientController.store);
+routes.put('/recipients/:id', RecipientController.update);
+routes.delete('/recipients/:id', RecipientController.delete);
 
 routes.get('/couriers', CourierController.index);
 routes.post('/couriers', CourierController.store);
