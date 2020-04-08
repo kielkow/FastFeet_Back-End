@@ -17,6 +17,13 @@ class RecipientController {
             [Op.iRegexp]: req.query.name,
           },
         },
+        include: [
+          {
+            model: File,
+            as: 'signature',
+            attributes: ['id', 'path', 'url'],
+          },
+        ],
         order: ['id'],
         limit: 8,
         offset: (page - 1) * 8,
@@ -25,6 +32,13 @@ class RecipientController {
     }
 
     const recipients = await Recipient.findAll({
+      include: [
+        {
+          model: File,
+          as: 'signature',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
       order: ['id'],
       limit: 8,
       offset: (page - 1) * 8,
@@ -35,7 +49,7 @@ class RecipientController {
   async store(req, res) {
     const schema = Yup.object().shape({
       name: Yup.string().required(),
-      signature_id: Yup.number(),
+      signature_id: Yup.number().required(),
       street: Yup.string().required(),
       number: Yup.string().required(),
       details: Yup.string().required(),
@@ -58,14 +72,12 @@ class RecipientController {
     if (!checkUserProvider.provider)
       return res.status(400).json({ error: 'User is not a provider' });
 
-    if (req.body.signature_id) {
-      const fileExists = await File.findOne({
-        where: { id: req.body.signature_id },
-      });
+    const fileExists = await File.findOne({
+      where: { id: req.body.signature_id },
+    });
 
-      if (!fileExists) {
-        return res.status(400).json({ error: 'File not exist' });
-      }
+    if (!fileExists) {
+      return res.status(400).json({ error: 'File not exist' });
     }
 
     const recipientExists = await Recipient.findOne({
