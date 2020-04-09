@@ -240,7 +240,7 @@ class OrderController {
       order.status = 'delivered';
 
       if (isBefore(order.end_date, order.start_date))
-        return res.json({ error: 'Date not permitted' });
+        return res.status(400).json({ error: 'Date not permitted' });
 
       await order.save();
 
